@@ -7,7 +7,7 @@ export default function DetailLink() {
 
   return (
     <button onClick={() => { router.back() }}>
-      button
+      back button
     </button>
   );
 }
