@@ -4,20 +4,23 @@ import Link from "next/link";
 
 export default function ListItem({ result }) {
   return (
-    result.map((e, i) => {
+    result.map((item, i) => {
       return (
         <div className="list-item" key={i}>
-          <Link href={`/detail/${e.id}`}>
-            <h4>{e.title}</h4>
+          <Link href={`/detail/${item._id}`}>
+            <h4>{item.title}</h4>
           </Link>
-          <Link href={`/edit/${e.id}`}>edit</Link>
+          <Link href={`/edit/${item._id}`}>edit</Link>
           <span onClick={() => {
             fetch('/api/post/delete', {
               method: 'POST',
-              body: e.id
-            }).then(() => { console.log(12342341) })
+              body: item._id
+            }).then((r) => r.json())
+              .then(() => {
+
+              })
           }}>delete</span>
-          <p>{e.content}</p>
+          <p>{item.content}</p>
         </div>
       );
     })
