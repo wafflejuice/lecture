@@ -36,3 +36,4 @@ next-env.d.ts
 
 # secret
 database.js
+[...nextauth].js

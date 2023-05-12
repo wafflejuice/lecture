@@ -1,8 +1,9 @@
-import { connectDB } from '@/util/database';
+// export const revalidate = 60;
 
 export default async function Home() {
-  const client = await connectDB;
-  const db = client.db("forum")
+  // await fetch('/URL', {cache: 'force-cache'})
+  // await fetch('/URL', {cache: 'no-store'})
+  // await fetch('/URL', {next: {revalidate: 60}})
 
   return (
     <div>
