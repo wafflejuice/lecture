@@ -27,7 +27,6 @@ model Restaurant {
   cuisine     Cuisine  @relation(fields: [cuisine_id], references: [id])
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  locationId  Int
 }
 
 enum PRICE {
@@ -61,5 +60,4 @@ model Item {
   restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt
-  restaurantId  Int
 }
