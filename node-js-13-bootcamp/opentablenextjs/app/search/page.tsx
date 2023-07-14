@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 const prisma = new PrismaClient();
 
 interface Restaurant {
+  id: number
   name: string
   main_image: string
   price: PRICE
@@ -55,7 +56,7 @@ export default async function Search({ searchParams }: { searchParams: { city: s
     <>
       <Header />
       <div className="flex py-4 m-auto w-2/3 justify-between items-start">
-        <SearchSideBar />
+        <SearchSideBar restaurants={restaurants} />
         <div className="w-5/6">
           {restaurants.length
             ? (restaurants.map((restaurant) => {

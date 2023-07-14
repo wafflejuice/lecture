@@ -1,20 +1,35 @@
-export default function SearchSideBar() {
+import { Cuisine, Location, PRICE } from "@prisma/client"
+
+interface Restaurant {
+  id: number
+  cuisine: Cuisine
+  location: Location
+}
+
+export default function SearchSideBar({ restaurants }: { restaurants: Restaurant[] }) {
   return (
     <div className="w-1/5">
       <div className="border-b pb-4">
         <h1 className="mb-2">Region</h1>
-        <p className="font-light text-reg">Toronto</p>
-        <p className="font-light text-reg">Ottawa</p>
-        <p className="font-light text-reg">Montreal</p>
-        <p className="font-light text-reg">Hamilton</p>
-        <p className="font-light text-reg">Kingston</p>
-        <p className="font-light text-reg">Niagara</p>
+        {
+          Array.from(new Set(restaurants.map((restaurant) => restaurant.location.name)))
+            .map((locationName, index) => {
+              return (
+                <p className="font-light text-reg" key={index}>{locationName}</p>
+              );
+            })
+        }
       </div>
       <div className="border-b pb-4 mt-3">
         <h1 className="mb-2">Cuisine</h1>
-        <p className="font-light text-reg">Mexican</p>
-        <p className="font-light text-reg">Italian</p>
-        <p className="font-light text-reg">Chinese</p>
+        {
+          Array.from(new Set(restaurants.map((restaurant) => restaurant.cuisine.name)))
+            .map((cuisineName, index) => {
+              return (
+                <p className="font-light text-reg" key={index}>{cuisineName}</p>
+              );
+            })
+        }
       </div>
       <div className="mt-3 pb-4">
         <h1 className="mb-2">Price</h1>
