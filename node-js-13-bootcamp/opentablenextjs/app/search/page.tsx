@@ -17,6 +17,7 @@ interface Restaurant {
   price: PRICE
   cuisine: Cuisine
   location: Location
+  slug: string
 }
 
 const fetchRestaurantsByCity = (city: string | undefined): Promise<Restaurant[]> => {
