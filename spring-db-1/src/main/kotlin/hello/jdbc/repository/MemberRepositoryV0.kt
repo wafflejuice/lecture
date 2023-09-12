@@ -38,6 +38,38 @@ class MemberRepositoryV0 {
         }
     }
 
+    fun findById(memberId: String): Member {
+        val sql = "select * from member where member_id = ?"
+
+        var con: Connection? = null
+        var pstmt: PreparedStatement? = null
+        var rs: ResultSet? = null
+
+        try {
+            con = getConnection()
+            pstmt = con.prepareStatement(sql)
+            pstmt.setString(1, memberId)
+            rs = pstmt.executeQuery()
+            if (rs.next()) {
+                return Member(
+                    memberId = rs.getString("member_id"),
+                    money = rs.getInt("money"),
+                )
+            } else {
+                throw NoSuchElementException("member not found memberId=$memberId")
+            }
+        } catch (e: SQLException) {
+            logger.error("db error", e)
+            throw e
+        } finally {
+            close(
+                con = con,
+                stmt = pstmt,
+                rs = rs,
+            )
+        }
+    }
+
     private fun close(con: Connection?, stmt: Statement?, rs: ResultSet?) {
         try {
             rs?.close()
