@@ -70,6 +70,48 @@ class MemberRepositoryV0 {
         }
     }
 
+    fun update(memberId: String, money: Int) {
+        val sql = "update member set money=? where member_id=?"
+
+        var con: Connection? = null
+        var pstmt: PreparedStatement? = null
+
+        try {
+            con = getConnection()
+            pstmt = con.prepareStatement(sql)
+            pstmt.setInt(1, money)
+            pstmt.setString(2, memberId)
+
+            val resultSize = pstmt.executeUpdate()
+            logger.info("resultSize=$resultSize")
+        } catch (e: SQLException) {
+            logger.error("db error", e)
+            throw e
+        } finally {
+            close(con = con, stmt = pstmt, rs = null)
+        }
+    }
+
+    fun delete(memberId: String) {
+        val sql = "delete from member where member_id=?"
+
+        var con: Connection? = null
+        var pstmt: PreparedStatement? = null
+
+        try {
+            con = getConnection()
+            pstmt = con.prepareStatement(sql)
+            pstmt.setString(1, memberId)
+
+            pstmt.executeUpdate()
+        } catch (e: SQLException) {
+            logger.error("db error", e)
+            throw e
+        } finally {
+            close(con = con, stmt = pstmt, rs = null)
+        }
+    }
+
     private fun close(con: Connection?, stmt: Statement?, rs: ResultSet?) {
         try {
             rs?.close()
