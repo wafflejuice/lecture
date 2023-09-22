@@ -7,35 +7,49 @@ import hello.jdbc.domain.Member
 import hello.jdbc.repository.MemberRepositoryV3
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.DriverManagerDataSource
+import org.springframework.transaction.PlatformTransactionManager
+import javax.sql.DataSource
 
 /**
- * 트랜잭션 - 트랜잭션 템플릿
+ * 트랜잭션 - @Transactional AOP
  */
-internal class MemberServiceV3_2Test {
-
+@SpringBootTest
+internal class MemberServiceV3_3Test(
+    @Autowired private val memberRepository: MemberRepositoryV3,
+    @Autowired private val memberService: MemberServiceV3_3,
+) {
     private val MEMBER_A = "memberA"
     private val MEMBER_B = "memberB"
     private val MEMBER_EX = "ex"
-
-    private lateinit var memberRepository: MemberRepositoryV3
-    private lateinit var memberService: MemberServiceV3_2
-
+    
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @BeforeEach
-    fun before() {
-        val dataSource = DriverManagerDataSource(URL, USERNAME, PASSWORD)
-        memberRepository = MemberRepositoryV3(dataSource = dataSource)
-        memberService = MemberServiceV3_2(
-            transactionManager = DataSourceTransactionManager(dataSource),
-            memberRepository = memberRepository,
-        )
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun dataSource(): DataSource =
+            DriverManagerDataSource(URL, USERNAME, PASSWORD)
+
+        @Bean
+        fun transactionManager(): PlatformTransactionManager =
+            DataSourceTransactionManager(dataSource())
+
+        @Bean
+        fun memberRepositoryV3(): MemberRepositoryV3 =
+            MemberRepositoryV3(dataSource())
+
+        @Bean
+        fun memberServiceV3_3(): MemberServiceV3_3 =
+            MemberServiceV3_3(memberRepository = memberRepositoryV3())
     }
 
     @AfterEach
