@@ -7,9 +7,12 @@ import hello.jdbc.domain.Member
 import hello.jdbc.repository.MemberRepositoryV3
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
+import org.springframework.aop.support.AopUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -30,7 +33,7 @@ internal class MemberServiceV3_3Test(
     private val MEMBER_A = "memberA"
     private val MEMBER_B = "memberB"
     private val MEMBER_EX = "ex"
-    
+
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @TestConfiguration
@@ -57,6 +60,15 @@ internal class MemberServiceV3_3Test(
         memberRepository.delete(memberId = MEMBER_A)
         memberRepository.delete(memberId = MEMBER_B)
         memberRepository.delete(memberId = MEMBER_EX)
+    }
+
+    @Test
+    fun aopCheck() {
+        logger.info("memberService class=${memberService.javaClass}")
+        logger.info("memberRepository class=${memberRepository.javaClass}")
+
+        assertTrue(AopUtils.isAopProxy(memberService))
+        assertFalse(AopUtils.isAopProxy(memberRepository))
     }
 
     @Test
