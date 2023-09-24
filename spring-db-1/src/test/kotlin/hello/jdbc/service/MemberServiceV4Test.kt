@@ -2,7 +2,7 @@ package hello.jdbc.service
 
 import hello.jdbc.domain.Member
 import hello.jdbc.repository.MemberRepository
-import hello.jdbc.repository.MemberRepositoryV4_2
+import hello.jdbc.repository.MemberRepositoryV5
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -37,7 +37,8 @@ internal class MemberServiceV4Test(
     ) {
         @Bean
         fun memberRepository(): MemberRepository =
-            MemberRepositoryV4_2(dataSource)
+//            MemberRepositoryV4_2(dataSource)
+            MemberRepositoryV5(dataSource)
 
         @Bean
         fun memberServiceV4(memberRepository: MemberRepository): MemberServiceV4 =
