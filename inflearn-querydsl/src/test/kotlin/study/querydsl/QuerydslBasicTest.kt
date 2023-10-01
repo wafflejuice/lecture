@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import study.querydsl.entity.Member
-import study.querydsl.entity.QMember
+import study.querydsl.entity.QMember.member
 import study.querydsl.entity.Team
 
 @SpringBootTest
@@ -54,12 +54,10 @@ class QuerydslBasicTest {
 
     @Test
     fun startQuerydsl() {
-        val m = QMember("m")
-
         val foundMember = queryFactory
-            .select(m)
-            .from(m)
-            .where(m.username.eq("member1")) // parameter binding
+            .select(member)
+            .from(member)
+            .where(member.username.eq("member1")) // parameter binding
             .fetchOne()!!
 
         assertEquals(foundMember.username, "member1")
