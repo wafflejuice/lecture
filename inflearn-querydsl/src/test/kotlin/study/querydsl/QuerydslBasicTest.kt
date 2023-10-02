@@ -49,7 +49,7 @@ class QuerydslBasicTest {
             .setParameter("username", "member1")
             .singleResult
 
-        assertEquals(foundMember.username, "member1")
+        assertEquals("member1", foundMember.username)
     }
 
     @Test
@@ -60,6 +60,32 @@ class QuerydslBasicTest {
             .where(member.username.eq("member1")) // parameter binding
             .fetchOne()!!
 
-        assertEquals(foundMember.username, "member1")
+        assertEquals("member1", foundMember.username)
+    }
+
+    @Test
+    fun search() {
+        val foundMember = queryFactory
+            .selectFrom(member)
+            .where(
+                member.username.eq("member1")
+                    .and(member.age.eq(10))
+            )
+            .fetchOne()!!
+
+        assertEquals("member1", foundMember.username)
+    }
+
+    @Test
+    fun searchAndParam() {
+        val foundMember = queryFactory
+            .selectFrom(member)
+            .where(
+                member.username.eq("member1"),
+                member.age.eq(10),
+            )
+            .fetchOne()!!
+
+        assertEquals("member1", foundMember.username)
     }
 }
