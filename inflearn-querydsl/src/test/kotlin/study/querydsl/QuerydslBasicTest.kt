@@ -88,4 +88,30 @@ class QuerydslBasicTest {
 
         assertEquals("member1", foundMember.username)
     }
+
+    @Test
+    fun resultFetch() {
+        val fetch = queryFactory
+            .selectFrom(member)
+            .fetch()
+
+        val fetchOne = queryFactory
+            .selectFrom(member)
+            .fetchOne()
+
+        val fetchFirst = queryFactory
+            .selectFrom(member)
+            .fetchFirst()
+
+        val results = queryFactory
+            .selectFrom(member)
+            .fetchResults()
+
+        results.total
+        val content = results.results
+
+        val total = queryFactory
+            .selectFrom(member)
+            .fetchCount()
+    }
 }
