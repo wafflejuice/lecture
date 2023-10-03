@@ -2,6 +2,7 @@ package study.querydsl
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import study.querydsl.entity.Member
 import study.querydsl.entity.QMember.member
+import study.querydsl.entity.QTeam.team
 import study.querydsl.entity.Team
 
 @SpringBootTest
@@ -96,9 +98,9 @@ class QuerydslBasicTest {
             .selectFrom(member)
             .fetch()
 
-        val fetchOne = queryFactory
-            .selectFrom(member)
-            .fetchOne()
+//        val fetchOne = queryFactory
+//            .selectFrom(member)
+//            .fetchOne()
 
         val fetchFirst = queryFactory
             .selectFrom(member)
@@ -141,5 +143,112 @@ class QuerydslBasicTest {
         assertEquals("member5", member5.username)
         assertEquals("member6", member6.username)
         assertNull(memberNull.username)
+    }
+
+    @Test
+    fun paging1() {
+        val result = queryFactory
+            .selectFrom(member)
+            .orderBy(member.username.desc())
+            .offset(1)
+            .limit(2)
+            .fetch()
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun paging2() {
+        val queryResults = queryFactory
+            .selectFrom(member)
+            .orderBy(member.username.desc())
+            .offset(1)
+            .limit(2)
+            .fetchResults()
+
+        assertEquals(4, queryResults.total)
+        assertEquals(2, queryResults.limit)
+        assertEquals(1, queryResults.offset)
+        assertEquals(2, queryResults.results.size)
+    }
+
+    @Test
+    fun aggregation() {
+        val result = queryFactory
+            .select(
+                member.count(),
+                member.age.sum(),
+                member.age.avg(),
+                member.age.max(),
+                member.age.min(),
+            )
+            .from(member)
+            .fetch()
+
+        val tuple = result[0]
+        assertEquals(4, tuple.get(member.count()))
+        assertEquals(100, tuple.get(member.age.sum()))
+        assertEquals(25.0, tuple.get(member.age.avg()))
+        assertEquals(40, tuple.get(member.age.max()))
+        assertEquals(10, tuple.get(member.age.min()))
+    }
+
+    /**
+     * 팀의 이름과 각 팀의 평균 연령을 구해라.
+     */
+    @Test
+    fun group() {
+        val result = queryFactory
+            .select(team.name, member.age.avg())
+            .from(member)
+            .join(member.team, team)
+            .groupBy(team.name)
+            .fetch()
+
+        val teamA = result[0]
+        val teamB = result[1]
+
+        assertEquals("teamA", teamA.get(team.name))
+        assertEquals(15.0, teamA.get(member.age.avg()))
+
+        assertEquals("teamB", teamB.get(team.name))
+        assertEquals(35.0, teamB.get(member.age.avg()))
+    }
+
+    /**
+     * 팀 A에 소속된 모든 회원
+     */
+    @Test
+    fun join() {
+        val result = queryFactory
+            .selectFrom(member)
+            .join(member.team, team)
+            .where(team.name.eq("teamA"))
+            .fetch()
+
+        assertThat(result)
+            .extracting("username")
+            .containsExactly("member1", "member2")
+    }
+
+    /**
+     * 세타 조인
+     * 회원의 이름이 팀 이름과 같은 회원 조회
+     */
+    @Test
+    fun theta_join() {
+        em.persist(Member.new(username = "teamA"))
+        em.persist(Member.new(username = "teamB"))
+        em.persist(Member.new(username = "teamC"))
+
+        val result = queryFactory
+            .select(member)
+            .from(member, team)
+            .where(member.username.eq(team.name))
+            .fetch()
+
+        assertThat(result)
+            .extracting("username")
+            .containsExactly("teamA", "teamB")
     }
 }

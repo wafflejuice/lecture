@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne
 class Member
 private constructor(
     username: String?,
-    age: Int,
+    age: Int?,
 ) {
     @Id
     @GeneratedValue
@@ -22,7 +22,7 @@ private constructor(
     var username: String? = username
         protected set
 
-    var age: Int = age
+    var age: Int? = age
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,9 +41,9 @@ private constructor(
 
     companion object {
         fun new(
-            username: String?,
-            age: Int,
-            team: Team?,
+            username: String? = null,
+            age: Int? = null,
+            team: Team? = null,
         ): Member {
             val member = Member(
                 username = username,
