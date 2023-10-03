@@ -11,7 +11,7 @@ import jakarta.persistence.ManyToOne
 @Entity
 class Member
 private constructor(
-    username: String,
+    username: String?,
     age: Int,
 ) {
     @Id
@@ -19,7 +19,7 @@ private constructor(
     @Column(name = "member_id")
     val id: Long = 0L
 
-    var username: String = username
+    var username: String? = username
         protected set
 
     var age: Int = age
@@ -41,7 +41,7 @@ private constructor(
 
     companion object {
         fun new(
-            username: String,
+            username: String?,
             age: Int,
             team: Team?,
         ): Member {

@@ -3,6 +3,7 @@ package study.querydsl
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -113,5 +114,32 @@ class QuerydslBasicTest {
         val total = queryFactory
             .selectFrom(member)
             .fetchCount()
+    }
+
+    /**
+     * 회원 정렬 순서
+     * 1. 회원 나이 내림차순(desc)
+     * 2. 회원 이름 올림차순(asc)
+     * 단 2에서 회원 이름이 없으면 마지막에 출력 (nulls last)
+     */
+    @Test
+    fun sort() {
+        em.persist(Member.new(username = null, age = 100, team = null))
+        em.persist(Member.new(username = "member5", age = 100, team = null))
+        em.persist(Member.new(username = "member6", age = 100, team = null))
+
+        val result = queryFactory
+            .selectFrom(member)
+            .where(member.age.eq(100))
+            .orderBy(member.age.desc(), member.username.asc().nullsLast())
+            .fetch()
+
+        val member5 = result[0]
+        val member6 = result[1]
+        val memberNull = result[2]
+
+        assertEquals("member5", member5.username)
+        assertEquals("member6", member6.username)
+        assertNull(memberNull.username)
     }
 }
