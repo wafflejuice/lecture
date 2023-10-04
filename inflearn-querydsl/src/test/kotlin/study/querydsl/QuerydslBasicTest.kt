@@ -1,16 +1,22 @@
 package study.querydsl
 
+import com.querydsl.jpa.JPAExpressions.select
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityManagerFactory
+import jakarta.persistence.PersistenceUnit
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import study.querydsl.entity.Member
+import study.querydsl.entity.QMember
 import study.querydsl.entity.QMember.member
 import study.querydsl.entity.QTeam.team
 import study.querydsl.entity.Team
@@ -283,6 +289,114 @@ class QuerydslBasicTest {
             .select(member, team)
             .from(member)
             .leftJoin(team).on(member.username.eq(team.name))
+            .fetch()
+
+        result.forEach { tuple ->
+            println("tuple = $tuple")
+        }
+    }
+
+    @PersistenceUnit
+    private lateinit var emf: EntityManagerFactory
+
+    @Test
+    fun noFetchJoin() {
+        em.flush()
+        em.clear()
+
+        val foundMember = queryFactory
+            .selectFrom(member)
+            .where(member.username.eq("member1"))
+            .fetchOne()!!
+
+        val loaded = emf.persistenceUnitUtil.isLoaded(foundMember.team)
+        assertFalse(loaded)
+    }
+
+    @Test
+    fun useFetchJoin() {
+        em.flush()
+        em.clear()
+
+        val foundMember = queryFactory
+            .selectFrom(member)
+            .join(member.team, team).fetchJoin()
+            .where(member.username.eq("member1"))
+            .fetchOne()!!
+
+        val loaded = emf.persistenceUnitUtil.isLoaded(foundMember.team)
+        assertTrue(loaded)
+    }
+
+    /**
+     * 나이가 가장 많은 회원을 조회
+     */
+    @Test
+    fun subQuerEq() {
+        val memberSub = QMember("memberSub")
+
+        val result = queryFactory
+            .selectFrom(member)
+            .where(
+                member.age.eq(
+                    select(memberSub.age.max())
+                        .from(memberSub)
+                )
+            )
+            .fetch()
+
+        assertThat(result).extracting("age").containsExactly(40)
+    }
+
+    /**
+     * 나이가 평균 이상인 회원을 조회
+     */
+    @Test
+    fun subQueryGoe() {
+        val memberSub = QMember("memberSub")
+
+        val result = queryFactory
+            .selectFrom(member)
+            .where(
+                member.age.goe(
+                    select(memberSub.age.avg())
+                        .from(memberSub)
+                )
+            )
+            .fetch()
+
+        assertThat(result).extracting("age").containsExactly(30, 40)
+    }
+
+    @Test
+    fun subQueryIn() {
+        val memberSub = QMember("memberSub")
+
+        val result = queryFactory
+            .selectFrom(member)
+            .where(
+                member.age.`in`(
+                    select(memberSub.age)
+                        .from(memberSub)
+                        .where(memberSub.age.gt(10))
+                )
+            )
+            .fetch()
+
+        assertThat(result).extracting("age").containsExactly(20, 30, 40)
+    }
+
+    @Test
+    fun selectSubQuery() {
+        val memberSub = QMember("memberSub")
+
+        val result = queryFactory
+            .select(
+                member.username,
+                select(memberSub.age.avg())
+                    .from(memberSub)
+            )
+            .from(member)
             .fetch()
 
         result.forEach { tuple ->
