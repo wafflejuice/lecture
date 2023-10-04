@@ -23,7 +23,7 @@ private constructor(
     val members: MutableList<Member> = mutableListOf()
 
     override fun toString(): String {
-        return "id=$id, name=$name"
+        return "Team(id=$id, name=$name)"
     }
 
     companion object {

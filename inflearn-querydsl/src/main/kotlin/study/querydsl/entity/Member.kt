@@ -36,7 +36,7 @@ private constructor(
     }
 
     override fun toString(): String {
-        return "id=$id, username=$username, age=$age"
+        return "Member(id=$id, username=$username, age=$age)"
     }
 
     companion object {
