@@ -1,7 +1,10 @@
 package study.querydsl
 
+import com.querydsl.core.types.ExpressionUtils
+import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
+import com.querydsl.jpa.JPAExpressions
 import com.querydsl.jpa.JPAExpressions.select
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
@@ -17,6 +20,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import study.querydsl.dto.MemberDto
+import study.querydsl.dto.MemberDtoA
+import study.querydsl.dto.UserDto
+import study.querydsl.dto.UserDtoA
 import study.querydsl.entity.Member
 import study.querydsl.entity.QMember
 import study.querydsl.entity.QMember.member
@@ -463,4 +470,141 @@ class QuerydslBasicTest {
             println("tuple = $tuple")
         }
     }
+
+    @Test
+    fun simpleProjection() {
+        val result = queryFactory
+            .select(member.username)
+            .from(member)
+            .fetch()
+
+        result.forEach { s ->
+            println("s = $s")
+        }
+    }
+
+    @Test
+    fun tupleProjection() {
+        val result = queryFactory
+            .select(member.username, member.age)
+            .from(member)
+            .fetch()
+
+        result.forEach { tuple ->
+            val username = tuple.get(member.username)
+            val age = tuple.get(member.age)
+            println("username = $username")
+            println("age = $age")
+        }
+    }
+
+    @Test
+    fun findDtoByJPQL() {
+        val result = em.createQuery(
+            "select new study.querydsl.dto.MemberDto(m.username, m.age) from Member m",
+            MemberDto::class.java
+        )
+            .resultList
+
+        result.forEach { memberDto ->
+            println("memberDto = $memberDto")
+        }
+    }
+
+    @Test
+    fun findDtoBySetter() {
+        val result = queryFactory
+            .select(
+                Projections.bean(
+                    MemberDtoA::class.java,
+                    member.username,
+                    member.age,
+                )
+            )
+            .from(member)
+            .fetch()
+
+        result.forEach { memberDto ->
+            println("memberDto = $memberDto")
+        }
+    }
+
+    @Test
+    fun findDtoByField() {
+        val result = queryFactory
+            .select(
+                Projections.fields(
+                    MemberDtoA::class.java,
+                    member.username,
+                    member.age,
+                )
+            )
+            .from(member)
+            .fetch()
+
+        result.forEach { memberDto ->
+            println("memberDto = $memberDto")
+        }
+    }
+
+    @Test
+    fun findDtoByConstructor() {
+        val result = queryFactory
+            .select(
+                Projections.constructor(
+                    MemberDto::class.java,
+                    member.username,
+                    member.age,
+                )
+            )
+            .from(member)
+            .fetch()
+
+        result.forEach { memberDto ->
+            println("memberDto = $memberDto")
+        }
+    }
+
+    @Test
+    fun findUserDtoByField() {
+        val memberSub = QMember("memberSub")
+        val result = queryFactory
+            .select(
+                Projections.fields(
+                    UserDtoA::class.java,
+                    member.username.`as`("name"),
+                    ExpressionUtils.`as`(
+                        JPAExpressions
+                            .select(memberSub.age.max())
+                            .from(memberSub),
+                        "age",
+                    )
+                )
+            )
+            .from(member)
+            .fetch()
+
+        result.forEach { userDto ->
+            println("userDto = $userDto")
+        }
+    }
+
+    @Test
+    fun findUserDtoByConstructor() {
+        val result = queryFactory
+            .select(
+                Projections.constructor(
+                    UserDto::class.java,
+                    member.username,
+                    member.age,
+                )
+            )
+            .from(member)
+            .fetch()
+
+        result.forEach { userDto ->
+            println("userDto = $userDto")
+        }
+    }
+
 }
