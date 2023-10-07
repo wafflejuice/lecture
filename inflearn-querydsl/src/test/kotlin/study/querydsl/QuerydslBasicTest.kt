@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import study.querydsl.dto.MemberDto
 import study.querydsl.dto.MemberDtoA
+import study.querydsl.dto.QMemberDto
 import study.querydsl.dto.UserDto
 import study.querydsl.dto.UserDtoA
 import study.querydsl.entity.Member
@@ -604,6 +605,18 @@ class QuerydslBasicTest {
 
         result.forEach { userDto ->
             println("userDto = $userDto")
+        }
+    }
+
+    @Test
+    fun findDtoByQueryProjection() {
+        val result = queryFactory
+            .select(QMemberDto(member.username, member.age))
+            .from(member)
+            .fetch()
+
+        result.forEach { memberDto ->
+            println("memberDto = $memberDto")
         }
     }
 
