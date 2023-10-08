@@ -1,5 +1,6 @@
 package study.querydsl
 
+import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.ExpressionUtils
 import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.CaseBuilder
@@ -618,6 +619,26 @@ class QuerydslBasicTest {
         result.forEach { memberDto ->
             println("memberDto = $memberDto")
         }
+    }
+
+    @Test
+    fun dynamicQuery_BooleanBuilder() {
+        val usernameParam = "member1"
+        val ageParam = null
+
+        val result = searchMember1(usernameCond = usernameParam, ageCond = ageParam)
+        assertEquals(1, result.size)
+    }
+
+    private fun searchMember1(usernameCond: String?, ageCond: Int?): List<Member> {
+        val builder = BooleanBuilder()
+        usernameCond?.let { builder.and(member.username.eq(it)) }
+        ageCond?.let { builder.and(member.age.eq(it)) }
+
+        return queryFactory
+            .selectFrom(member)
+            .where(builder)
+            .fetch()
     }
 
 }
