@@ -3,6 +3,7 @@ package study.querydsl
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.ExpressionUtils
 import com.querydsl.core.types.Projections
+import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.JPAExpressions
@@ -641,4 +642,31 @@ class QuerydslBasicTest {
             .fetch()
     }
 
+    @Test
+    fun dynamicQuery_WhereParam() {
+        val usernameParam = "member1"
+        val ageParam = null
+
+        val result = searchMember2(usernameCond = usernameParam, ageCond = ageParam)
+        assertEquals(1, result.size)
+    }
+
+    private fun searchMember2(usernameCond: String?, ageCond: Int?): List<Member> {
+        return queryFactory
+            .selectFrom(member)
+            .where(allEq(usernameCond = usernameCond, ageCond = ageCond))
+            .fetch()
+    }
+
+    private fun allEq(usernameCond: String?, ageCond: Int?): BooleanExpression? {
+        return usernameEq(usernameCond = usernameCond)?.and(ageEq(ageCond = ageCond))
+    }
+
+    private fun usernameEq(usernameCond: String?): BooleanExpression? {
+        return usernameCond?.let { member.username.eq(usernameCond) }
+    }
+
+    private fun ageEq(ageCond: Int?): BooleanExpression? {
+        return ageCond?.let { member.age.eq(ageCond) }
+    }
 }
