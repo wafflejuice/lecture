@@ -669,4 +669,87 @@ class QuerydslBasicTest {
     private fun ageEq(ageCond: Int?): BooleanExpression? {
         return ageCond?.let { member.age.eq(ageCond) }
     }
+
+    @Test
+    fun bulkUpdate() {
+        /*
+        member1, 10 -> DB member1
+        member2, 20 -> DB member2
+        member3, 30 -> DB member3
+        member4, 40 -> DB member4
+         */
+
+        val count = queryFactory
+            .update(member)
+            .set(member.username, "비회원")
+            .where(member.age.lt(28))
+            .execute()
+
+        /*
+        member1, 10 -> DB 비회원
+        member2, 20 -> DB 비회원
+        member3, 30 -> DB member3
+        member4, 40 -> DB member4
+         */
+
+        val result1 = queryFactory
+            .selectFrom(member)
+            .fetch()
+
+        // DB에서 username이 비회원으로 바뀌었고, select 쿼리가 나갔으나,
+        // 영속성 컨텍스트가 항상 우선권을 가지기 때문에 결과는 다음과 같다. (repeatable read)
+        /*
+        member = Member(id=1, username=member1, age=10)
+        member = Member(id=2, username=member2, age=20)
+        member = Member(id=3, username=member3, age=30)
+        member = Member(id=4, username=member4, age=40)
+         */
+        result1.forEach { member ->
+            println("member = $member")
+        }
+
+        // 영속성 컨텍스트 초기화
+        // bulk 연산 후에는 (비즈니스 로직상 상관없을 수도 있지만) 항상 초기화해줘야 한다.
+        em.flush()
+        em.clear()
+
+        /*
+        member = Member(id=1, username=비회원, age=10)
+        member = Member(id=2, username=비회원, age=20)
+        member = Member(id=3, username=member3, age=30)
+        member = Member(id=4, username=member4, age=40)
+         */
+
+        val result2 = queryFactory
+            .selectFrom(member)
+            .fetch()
+
+        result2.forEach { member ->
+            println("member = $member")
+        }
+    }
+
+    @Test
+    fun bulkAdd() {
+        val count = queryFactory
+            .update(member)
+            .set(member.age, member.age.add(1))
+            .execute()
+    }
+
+    @Test
+    fun bulkMultiply() {
+        val count = queryFactory
+            .update(member)
+            .set(member.age, member.age.multiply(2))
+            .execute()
+    }
+
+    @Test
+    fun bulkDelete() {
+        val count = queryFactory
+            .delete(member)
+            .where(member.age.gt(18))
+            .execute()
+    }
 }
