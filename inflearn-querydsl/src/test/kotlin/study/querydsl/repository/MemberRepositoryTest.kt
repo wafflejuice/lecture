@@ -1,10 +1,12 @@
 package study.querydsl.repository
 
 import jakarta.persistence.EntityManager
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
 import study.querydsl.dto.MemberSearchCondition
@@ -27,7 +29,7 @@ internal class MemberRepositoryTest {
         memberRepository.save(member)
 
         val foundMember = memberRepository.findByIdOrNull(member.id)
-        Assertions.assertEquals(member, foundMember)
+        assertEquals(member, foundMember)
 
         val result1 = memberRepository.findAll()
         org.assertj.core.api.Assertions.assertThat(result1).containsExactly(member)
@@ -35,7 +37,6 @@ internal class MemberRepositoryTest {
         val result2 = memberRepository.findByUsername("member1")
         org.assertj.core.api.Assertions.assertThat(result2).containsExactly(member)
     }
-
 
     @Test
     fun searchTest() {
@@ -65,7 +66,7 @@ internal class MemberRepositoryTest {
 
         val result = memberRepository.search(condition = condition)
 
-        Assertions.assertEquals("member4", result[0].username)
+        assertEquals("member4", result[0].username)
 
         val condition2 = MemberSearchCondition(
             username = null,
@@ -76,6 +77,39 @@ internal class MemberRepositoryTest {
 
         val result2 = memberRepository.search(condition = condition2)
 
-        Assertions.assertIterableEquals(listOf("member3", "member4"), result2.map { it.username })
+        assertIterableEquals(listOf("member3", "member4"), result2.map { it.username })
+    }
+
+    @Test
+    fun searchTestSimple() {
+        val teamA = Team.new("teamA")
+        val teamB = Team.new("teamB")
+
+        em.persist(teamA)
+        em.persist(teamB)
+
+        val member1 = Member.new("member1", 10, teamA)
+        val member2 = Member.new("member2", 20, teamA)
+
+        val member3 = Member.new("member3", 30, teamB)
+        val member4 = Member.new("member4", 40, teamB)
+
+        em.persist(member1)
+        em.persist(member2)
+        em.persist(member3)
+        em.persist(member4)
+
+        val condition = MemberSearchCondition(
+            username = null,
+            teamName = null,
+            ageGoe = null,
+            ageLoe = null,
+        )
+        val pageRequest = PageRequest.of(0, 3)
+
+        val result = memberRepository.searchPageSimple(condition = condition, pageable = pageRequest)
+
+        assertEquals(3, result.size)
+        assertIterableEquals(listOf("member1", "member2", "member3"), result.content.map { it.username })
     }
 }
