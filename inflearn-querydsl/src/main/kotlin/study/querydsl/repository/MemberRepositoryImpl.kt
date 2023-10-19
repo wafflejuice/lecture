@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.util.StringUtils
 import study.querydsl.dto.MemberSearchCondition
 import study.querydsl.dto.MemberTeamDto
@@ -101,7 +102,19 @@ class MemberRepositoryImpl(
             )
             .fetchCount()
 
-        return PageImpl(content, pageable, total)
+//        return PageImpl(content, pageable, total)
+
+        val countQuery = queryFactory
+            .select(member)
+            .from(member)
+            .where(
+                usernameEq(condition.username),
+                teamNameEq(condition.teamName),
+                ageGoe(condition.ageGoe),
+                ageLoe(condition.ageLoe),
+            )
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount)
     }
 
     private fun usernameEq(username: String?): BooleanExpression? {
