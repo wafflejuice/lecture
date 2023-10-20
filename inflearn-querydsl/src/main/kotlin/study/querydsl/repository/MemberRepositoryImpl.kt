@@ -91,17 +91,17 @@ class MemberRepositoryImpl(
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        val total = queryFactory
-            .select(member)
-            .from(member)
-            .where(
-                usernameEq(condition.username),
-                teamNameEq(condition.teamName),
-                ageGoe(condition.ageGoe),
-                ageLoe(condition.ageLoe),
-            )
-            .fetchCount()
-
+//        val total = queryFactory
+//            .select(member)
+//            .from(member)
+//            .where(
+//                usernameEq(condition.username),
+//                teamNameEq(condition.teamName),
+//                ageGoe(condition.ageGoe),
+//                ageLoe(condition.ageLoe),
+//            )
+//            .fetchCount()
+//
 //        return PageImpl(content, pageable, total)
 
         val countQuery = queryFactory
