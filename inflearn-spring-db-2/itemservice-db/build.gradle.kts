@@ -23,6 +23,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+    // JdbcTemplate 추가
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    
+    // H2 데이터베이스 추가
+    runtimeOnly("com.h2database:h2")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
