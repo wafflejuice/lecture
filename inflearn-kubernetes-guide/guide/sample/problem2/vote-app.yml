@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      protocol: TCP
+      nodePort: 31000
+  selector:
+    app: vote
+    tier: frontend
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  selector:
+    matchLabels:
+      app: vote
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: vote
+        tier: frontend
+    spec:
+      containers:
+        - name: vote
+          image: ghcr.io/subicura/voting/vote:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: result
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      protocol: TCP
+      nodePort: 31001
+  selector:
+    app: result
+    tier: frontend
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+spec:
+  selector:
+    matchLabels:
+      app: result
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: result
+        tier: frontend
+    spec:
+      containers:
+        - name: result
+          image: ghcr.io/subicura/voting/result:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+  selector:
+    app: redis
+    tier: db
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: db
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: postgres
+        tier: db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.4
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+  selector:
+    app: postgres
+    tier: db
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+      tier: app
+  template:
+    metadata:
+      labels:
+        app: worker
+        tier: app
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/subicura/voting/worker:latest
+          env:
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"

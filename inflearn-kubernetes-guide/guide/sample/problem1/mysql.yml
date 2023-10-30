@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: mysql
+        tier: db
+    spec:
+      containers:
+        - name: mysql
+          image: mariadb:10.7
+          env:
+            - name: MYSQL_DATABASE
+              value: wordpress
+            - name: MYSQL_ROOT_PASSWORD
+              value: password
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+  selector:
+    app: mysql
+    tier: db
