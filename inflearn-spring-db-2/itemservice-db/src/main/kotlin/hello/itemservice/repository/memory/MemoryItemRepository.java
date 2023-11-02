@@ -7,7 +7,10 @@ import hello.itemservice.repository.ItemUpdateDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository

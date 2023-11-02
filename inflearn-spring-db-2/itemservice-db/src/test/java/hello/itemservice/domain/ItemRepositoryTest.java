@@ -30,7 +30,7 @@ class ItemRepositoryTest {
     @Test
     void save() {
         //given
-        Item item = new Item("itemA", 10000, 10);
+        Item item = Item.Companion.create("itemA", 10000, 10);
 
         //when
         Item savedItem = itemRepository.save(item);
@@ -43,7 +43,7 @@ class ItemRepositoryTest {
     @Test
     void updateItem() {
         //given
-        Item item = new Item("item1", 10000, 10);
+        Item item = Item.Companion.create("item1", 10000, 10);
         Item savedItem = itemRepository.save(item);
         Long itemId = savedItem.getId();
 
@@ -61,9 +61,9 @@ class ItemRepositoryTest {
     @Test
     void findItems() {
         //given
-        Item item1 = new Item("itemA-1", 10000, 10);
-        Item item2 = new Item("itemA-2", 20000, 20);
-        Item item3 = new Item("itemB-1", 30000, 30);
+        Item item1 = Item.Companion.create("itemA-1", 10000, 10);
+        Item item2 = Item.Companion.create("itemA-2", 20000, 20);
+        Item item3 = Item.Companion.create("itemB-1", 30000, 30);
 
         itemRepository.save(item1);
         itemRepository.save(item2);

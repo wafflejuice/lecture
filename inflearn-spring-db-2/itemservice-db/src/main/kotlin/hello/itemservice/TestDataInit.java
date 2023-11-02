@@ -19,8 +19,8 @@ public class TestDataInit {
     @EventListener(ApplicationReadyEvent.class)
     public void initData() {
         log.info("test data init");
-        itemRepository.save(new Item("itemA", 10000, 10));
-        itemRepository.save(new Item("itemB", 20000, 20));
+        itemRepository.save(Item.Companion.create("itemA", 10000, 10));
+        itemRepository.save(Item.Companion.create("itemB", 20000, 20));
     }
 
 }
