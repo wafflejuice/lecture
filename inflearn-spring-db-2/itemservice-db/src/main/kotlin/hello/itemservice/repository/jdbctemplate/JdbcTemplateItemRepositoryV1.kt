@@ -67,7 +67,7 @@ class JdbcTemplateItemRepositoryV1(
     }
 
     override fun findAll(cond: ItemSearchCond): List<Item> {
-        var sql = "select id, item_name, price, quantity from item where id=?"
+        var sql = "select id, item_name, price, quantity from item"
 
         val itemName = cond.itemName
         val maxPrice = cond.maxPrice
