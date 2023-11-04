@@ -90,7 +90,7 @@ class JdbcTemplateItemRepositoryV1(
             param.add(maxPrice)
         }
 
-        logger.info("sql={}", sql);
+        logger.info("sql={}", sql)
 
         return template.query(sql, itemRowMapper(), param.toTypedArray())
     }
