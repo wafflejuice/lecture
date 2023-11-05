@@ -6,6 +6,10 @@ class Item(
     price: Int,
     quantity: Int,
 ) {
+
+    constructor() :
+            this(id = 0L, itemName = "", price = 0, quantity = 0)
+
     var id: Long = id
 
     var itemName: String = itemName
