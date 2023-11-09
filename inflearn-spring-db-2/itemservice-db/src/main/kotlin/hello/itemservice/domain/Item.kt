@@ -18,6 +18,18 @@ class Item(
 
     var quantity: Int = quantity
 
+    override fun hashCode(): Int {
+        return id.hashCode() + itemName.hashCode() + price.hashCode() + quantity.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if ((other is Item).not()) return false
+        other as Item
+
+        return id == other.id && itemName == other.itemName && price == other.price && quantity == other.quantity
+    }
+
     companion object {
         fun create(
             itemName: String,
