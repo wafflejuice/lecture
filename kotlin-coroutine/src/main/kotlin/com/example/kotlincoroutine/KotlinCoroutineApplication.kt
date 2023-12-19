@@ -1,11 +1,25 @@
 package com.example.kotlincoroutine
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 
-@SpringBootApplication
-class KotlinCoroutineApplication
+fun main(): Unit = runBlocking {
+    printWithThread("START")
+    launch {
+        newRoutine()
+    }
+    yield()
+    printWithThread("END")
+}
 
-fun main(args: Array<String>) {
-    runApplication<KotlinCoroutineApplication>(*args)
+suspend fun newRoutine() {
+    val num1 = 1
+    val num2 = 2
+    yield()
+    printWithThread("${num1 + num2}")
+}
+
+fun printWithThread(str: Any) {
+    println("[${Thread.currentThread().name}] $str")
 }
