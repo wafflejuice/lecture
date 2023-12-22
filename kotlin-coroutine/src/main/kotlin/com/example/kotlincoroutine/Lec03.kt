@@ -18,7 +18,7 @@ fun main() {
 //    example8()
 }
 
-fun example1() {
+private fun example1() {
     runBlocking {
         printWithThread("START")
         launch {
