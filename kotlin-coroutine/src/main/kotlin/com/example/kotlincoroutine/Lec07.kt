@@ -9,22 +9,21 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 fun main() {
-    example01()
-}
-
-private fun example01() {
     val job = CoroutineScope(Dispatchers.Default).launch {
         delay(1_000L)
         printWithThread("Job 1")
     }
-    Thread.sleep(1_500L) // job1 . }
-    suspend fun main() {
-        val job = CoroutineScope(Dispatchers.Default).launch {
-            delay(1_000L)
-            printWithThread("Job 1")
-        }
-        job.join()
+
+    Thread.sleep(1_500L)
+}
+
+suspend fun main2() {
+    val job = CoroutineScope(Dispatchers.Default).launch {
+        delay(1_000L)
+        printWithThread("Job 1")
     }
+
+    job.join()
 }
 
 class AsyncLogic {
